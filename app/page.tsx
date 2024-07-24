@@ -3,8 +3,13 @@
 import Synthesizer from '@/components/synth';
 import { Card } from '@/components/ui/card';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 const Page = () => {
+  useEffect(() => {
+    document.body.click();
+  }, []);
+
   return (
     <div className="min-h-screen max-w-3xl mx-auto flex items-center justify-center">
       <div className="absolute top-8 left-8 p-4">
