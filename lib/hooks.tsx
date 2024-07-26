@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { nanoid } from 'nanoid';
-import { synthReducer } from '@/lib/reducers';
 import useAudioContext, { AudioContextOptions } from '@/lib/audio-context';
+import { synthReducer } from '@/lib/reducers';
+import { nanoid } from 'nanoid';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 
 export const useAudioSetup = () => {
   const [opts] = useState<AudioContextOptions>({
@@ -167,6 +167,8 @@ export const usePluginManagement = (
   pluginOrder: string[],
 ) => {
   const pluginNodesRef = useRef<Map<string, AudioNode>>(new Map());
+  const previousPluginsRef = useRef(plugins);
+  const previousPluginOrderRef = useRef(pluginOrder);
 
   const reconnectPluginChain = useCallback(() => {
     if (
@@ -207,12 +209,19 @@ export const usePluginManagement = (
   }, [audioContext, plugins, pluginOrder, effectsChainInputRef, masterGainRef]);
 
   useEffect(() => {
-    reconnectPluginChain();
+    const pluginsChanged = plugins !== previousPluginsRef.current;
+    const orderChanged = pluginOrder !== previousPluginOrderRef.current;
+
+    if (pluginsChanged || orderChanged) {
+      reconnectPluginChain();
+      previousPluginsRef.current = plugins;
+      previousPluginOrderRef.current = pluginOrder;
+    }
+
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       pluginNodesRef.current.forEach((node) => node.disconnect());
     };
-  }, [reconnectPluginChain]);
+  }, [plugins, pluginOrder, reconnectPluginChain]);
 
   return { reconnectPluginChain };
 };
