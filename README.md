@@ -61,7 +61,7 @@ sure! fork, tinker, break things.
 just remember to star ⭐
 
 ## fine print
-MIT license. use it. learn from it. break it.
+Apache 2.0 license. see [LICENSE](LICENSE)
 
 ---
 
