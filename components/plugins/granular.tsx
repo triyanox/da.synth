@@ -6,86 +6,95 @@ import { Card } from '../ui/card';
 export async function loadGranularWorklet(audioContext: AudioContext) {
   const src = /* javascript */ `
   class GranularProcessor extends AudioWorkletProcessor {
-      constructor() {
-          super();
-          this.bufferSize = 44100 * 2; 
-          this.buffer = new Float32Array(this.bufferSize);
-          this.grainPosition = 0;
-          this.currentFrame = 0;
-          this.nextGrainTime = 0;
-          this.sampleRate = 44100;
-          this.currentGrainSize = 0.1;
-          this.currentGrainSpacing = 0.05;
-          this.currentPlaybackRate = 1;
-          this.smoothingFactor = 0.05;
+    constructor() {
+        super();
+        this.bufferSize = 44100 * 2; 
+        this.buffer = new Float32Array(this.bufferSize);
+        this.grainPosition = 0;
+        this.currentFrame = 0;
+        this.nextGrainTime = 0;
+        this.sampleRate = 44100;
+        this.currentGrainSize = 0.1;
+        this.currentGrainSpacing = 0.05;
+        this.currentPlaybackRate = 1;
+        this.smoothingFactor = 0.05;
+        this.tempBuffer = new Float32Array(128); 
 
-          this.port.onmessage = (event) => {
-              if (event.data.sampleRate) {
-                  this.sampleRate = event.data.sampleRate;
-              }
-          };
-      }
+        this.port.onmessage = (event) => {
+            if (event.data.sampleRate) {
+                this.sampleRate = event.data.sampleRate;
+            }
+        };
+    }
 
-      static get parameterDescriptors() {
-          return [{
-                  name: 'grainSize',
-                  defaultValue: 0.1,
-                  minValue: 0.01,
-                  maxValue: 1,
-              },
-              {
-                  name: 'grainSpacing',
-                  defaultValue: 0.05,
-                  minValue: 0.01,
-                  maxValue: 1,
-              },
-              {
-                  name: 'playbackRate',
-                  defaultValue: 1,
-                  minValue: 0.1,
-                  maxValue: 4,
-              },
-          ];
-      }
+    static get parameterDescriptors() {
+        return [{
+                name: 'grainSize',
+                defaultValue: 0.1,
+                minValue: 0.01,
+                maxValue: 1,
+            },
+            {
+                name: 'grainSpacing',
+                defaultValue: 0.05,
+                minValue: 0.01,
+                maxValue: 1,
+            },
+            {
+                name: 'playbackRate',
+                defaultValue: 1,
+                minValue: 0.1,
+                maxValue: 4,
+            },
+        ];
+    }
 
-      process(inputs, outputs, parameters) {
-          const input = inputs[0];
-          const output = outputs[0];
+    process(inputs, outputs, parameters) {
+        const input = inputs[0];
+        const output = outputs[0];
 
-          this.currentGrainSize += (parameters.grainSize[0] - this.currentGrainSize) * this.smoothingFactor;
-          this.currentGrainSpacing += (parameters.grainSpacing[0] - this.currentGrainSpacing) * this.smoothingFactor;
-          this.currentPlaybackRate += (parameters.playbackRate[0] - this.currentPlaybackRate) * this.smoothingFactor;
+        if (!input || !input[0] || input[0].length === 0) {
+            return true;
+        }
 
-          if (input && input.length > 0) {
-              for (let channel = 0; channel < input.length; channel++) {
-                  for (let i = 0; i < input[channel].length; i++) {
-                      this.buffer[this.grainPosition] = input[channel][i];
-                      this.grainPosition = (this.grainPosition + 1) % this.bufferSize;
-                  }
-              }
-          }
+        const grainSize = parameters.grainSize[0];
+        const grainSpacing = parameters.grainSpacing[0];
+        const playbackRate = parameters.playbackRate[0];
 
-          for (let channel = 0; channel < output.length; channel++) {
-              for (let i = 0; i < output[channel].length; i++) {
-                  if (this.nextGrainTime <= this.currentFrame) {
-                      this.nextGrainTime = this.currentFrame + this.currentGrainSpacing * this.sampleRate;
-                      this.grainPosition = Math.floor(Math.random() * this.bufferSize);
-                  }
+        this.currentGrainSize += (grainSize - this.currentGrainSize) * this.smoothingFactor;
+        this.currentGrainSpacing += (grainSpacing - this.currentGrainSpacing) * this.smoothingFactor;
+        this.currentPlaybackRate += (playbackRate - this.currentPlaybackRate) * this.smoothingFactor;
 
-                  const grainPhase = (this.currentFrame - (this.nextGrainTime - this.currentGrainSize * this.sampleRate)) / (this.currentGrainSize * this.sampleRate);
-                  if (grainPhase >= 0 && grainPhase < 1) {
-                      const windowValue = 0.5 * (1 - Math.cos(2 * Math.PI * grainPhase));
-                      output[channel][i] = this.buffer[Math.floor(this.grainPosition)] * windowValue;
-                  } else {
-                      output[channel][i] = 0;
-                  }
+        const delaySamples = (this.currentGrainSize * this.sampleRate) | 0; 
 
-                  this.grainPosition = (this.grainPosition + this.currentPlaybackRate) % this.bufferSize;
-                  this.currentFrame++;
-              }
-          }
+        const inputLength = input[0].length;
+        for (let channel = 0; channel < input.length; channel++) {
+            const inputChannel = input[channel];
+            const outputChannel = output[channel];
 
-          return true;
+            for (let i = 0; i < inputLength; i++) {
+                this.buffer[this.grainPosition] = inputChannel[i];
+                this.grainPosition = (this.grainPosition + 1) % this.bufferSize;
+
+                if (this.nextGrainTime <= this.currentFrame) {
+                    this.nextGrainTime = this.currentFrame + (this.currentGrainSpacing * this.sampleRate) | 0;
+                    this.grainPosition = Math.random() * this.bufferSize | 0;
+                }
+
+                const grainPhase = (this.currentFrame - (this.nextGrainTime - delaySamples)) / delaySamples;
+                if (grainPhase >= 0 && grainPhase < 1) {
+                    const windowValue = 0.5 * (1 - Math.cos(2 * Math.PI * grainPhase));
+                    outputChannel[i] = this.buffer[this.grainPosition | 0] * windowValue;
+                } else {
+                    outputChannel[i] = 0;
+                }
+
+                this.grainPosition = (this.grainPosition + this.currentPlaybackRate) % this.bufferSize;
+                this.currentFrame++;
+            }
+        }
+
+        return true;
       }
   }
 
