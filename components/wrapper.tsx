@@ -11,6 +11,7 @@ const AppWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         transformOrigin: 'top left',
         width: `${100 / scale}%`,
         height: `${100 / scale}%`,
+        transition: 'transform 0.2s ease-in-out',
       }}
     >
       {children}
