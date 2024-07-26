@@ -104,7 +104,7 @@ const Synthesizer: React.FC = () => {
   );
 
   return (
-    <Card className="p-4 px-8 relative overflow-hidden space-y-2 max-h-[calc(100vh-2rem)] bg-opacity-100 max-w-3xl bg-gray-100">
+    <Card className="p-4 px-8 relative overflow-hidden space-y-2 h-fit§ bg-opacity-100 max-w-3xl bg-gray-100">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 flex-col">
@@ -175,7 +175,7 @@ const Synthesizer: React.FC = () => {
           ) : (
             <CarouselItem>
               <Card className="space-y-4 h-[25rem]  bg-gray-200 p-6 flex flex-col items-center justify-center border-4 border-black">
-                <div className="relative w-48 h-48">
+                <Card className="relative rounded-full w-28 h-28">
                   <svg viewBox="0 0 200 200" className="w-full h-full">
                     <defs>
                       <linearGradient
@@ -185,31 +185,21 @@ const Synthesizer: React.FC = () => {
                         x2="100%"
                         y2="100%"
                       >
-                        <stop offset="0%" stopColor="#fb923c" />
-                        <stop offset="100%" stopColor="#fb923c" />
+                        <stop offset="0%" stopColor="#000" />
+                        <stop offset="100%" stopColor="#000" />
                       </linearGradient>
                     </defs>
-                    <rect
-                      x="10"
-                      y="10"
-                      width="180"
-                      height="180"
-                      rx="10"
-                      className="fill-current text-gray-100"
-                      stroke="url(#emptyStateGradient)"
-                      strokeWidth="4"
-                    />
                     <circle
                       cx="100"
                       cy="100"
                       r="70"
-                      className="fill-current text-gray-200"
+                      className="fill-current text-orange-400"
                       stroke="url(#emptyStateGradient)"
                       strokeWidth="4"
                     />
                     <path
                       d="M40 100 Q70 60, 100 100 T160 100"
-                      className="stroke-current text-orange-400"
+                      className="stroke-current text-black"
                       strokeWidth="6"
                       fill="none"
                     />
@@ -217,7 +207,7 @@ const Synthesizer: React.FC = () => {
                       cx="100"
                       cy="100"
                       r="30"
-                      className="fill-current text-gray-200"
+                      className="fill-current text-orange-400"
                       stroke="url(#emptyStateGradient)"
                       strokeWidth="4"
                     />
@@ -232,7 +222,7 @@ const Synthesizer: React.FC = () => {
                       ?
                     </text>
                   </svg>
-                </div>
+                </Card>
                 <div className="text-center">
                   <h3 className="text-xl font-mono font-bold uppercase tracking-wider text-orange-500 mb-2">
                     No Oscillator Added
@@ -273,13 +263,62 @@ const Synthesizer: React.FC = () => {
       ) : (
         <div className="bg-gray-200 max-w-[640px] overflow-x-auto mx-auto h-56 flex border-black border-4 rounded-md shadow-inner">
           <div className="text-center flex justify-center items-center flex-col w-full p-8">
-            <AudioWaveform className="text-orange-500 mb-4" size={48} />
+            <Card className="rounded-full p-2 mb-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="8"
+                height="8"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-12 h-12 text-black"
+              >
+                <style>
+                  {`
+                    @keyframes pulse1 {
+                      0%, 100% { transform: scaleY(1); }
+                      50% { transform: scaleY(0.6); }
+                    }
+                    @keyframes pulse2 {
+                      0%, 100% { transform: scaleY(0.8); }
+                      50% { transform: scaleY(1); }
+                    }
+                    @keyframes pulse3 {
+                      0%, 100% { transform: scaleY(0.7); }
+                      50% { transform: scaleY(0.9); }
+                    }
+                    .bar1 {
+                      animation: pulse1 1.5s ease-in-out infinite;
+                      transform-origin: center;
+                    }
+                    .bar2 {
+                      animation: pulse2 1.3s ease-in-out infinite;
+                      transform-origin: center;
+                    }
+                    .bar3 {
+                      animation: pulse3 1.7s ease-in-out infinite;
+                      transform-origin: center;
+                    }
+                `}
+                </style>
+                <path
+                  className="bar1"
+                  d="M2 13a2 2 0 0 0 2-2V7a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0V4"
+                />
+                <path
+                  className="bar2"
+                  d="M12 4a2 2 0 0 1 4 0v13a2 2 0 0 0 4 0v-4"
+                />
+                <path className="bar3" d="M20 13a2 2 0 0 1 2-2" />
+              </svg>
+            </Card>
             <h3 className="text-xl uppercase font-bold tracking-widest text-orange-500 mb-2">
               No Effects
             </h3>
-            <p className="text-gray-400 max-w-xs font-mono text-sm">
-              Add effect to shape sound
-            </p>
+            <p className="text-black/70 text-sm">Add effect to shape sound</p>
           </div>
         </div>
       )}

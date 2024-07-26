@@ -1,7 +1,6 @@
-import { EffectPlugin } from '@/types';
-import { nanoid } from 'nanoid';
-import { KnobControl } from '../knob';
-import { Card } from '../ui/card';
+import { EffectPlugin } from "@/types";
+import { nanoid } from "nanoid";
+import { KnobControl } from "../knob";
 
 export async function loadSpectralShaperWorklet(audioContext: AudioContext) {
   const src = /* javascript */ `
@@ -197,7 +196,7 @@ export async function loadSpectralShaperWorklet(audioContext: AudioContext) {
   registerProcessor('spectral-shaper-processor', SpectralShaperProcessor);`;
 
   await audioContext.audioWorklet.addModule(
-    URL.createObjectURL(new Blob([src], { type: 'application/javascript' })),
+    URL.createObjectURL(new Blob([src], { type: "application/javascript" }))
   );
 }
 
@@ -210,17 +209,17 @@ const spectralShaperPlugin: EffectPlugin<
   }
 > = {
   id: nanoid(),
-  name: 'Spectral Shaper',
+  name: "Spectral Shaper",
   createNode: (audioContext) => {
     const node = new AudioWorkletNode(
       audioContext,
-      'spectral-shaper-processor',
+      "spectral-shaper-processor"
     );
 
     node.onprocessorerror = (event) => {
       console.error(
-        'An error from SpectralShaperProcessor was detected:',
-        event,
+        "An error from SpectralShaperProcessor was detected:",
+        event
       );
     };
 

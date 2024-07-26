@@ -183,7 +183,7 @@ const Keyboard: React.FC<KeyboardProps> = React.memo(
                   activeKeys.has(key.note)
                     ? 'bg-gradient-to-b from-orange-400 to-orange-500 shadow-inner'
                     : key.isBlack
-                    ? 'bg-gradient-to-b from-gray-800 to-black shadow-md hover:from-gray-700 hover:to-gray-800'
+                    ? 'bg-gradient-to-b from-black to-black shadow-md hover:from-gray-700 hover:to-gray-800'
                     : 'bg-gradient-to-b from-gray-100 to-gray-50 shadow-md hover:from-gray-200 hover:to-gray-300'
                 }
                 rounded-md transition-all duration-50 ease-in-out
@@ -203,9 +203,9 @@ const Keyboard: React.FC<KeyboardProps> = React.memo(
               >
                 <div className="w-full h-3 flex items-center justify-center mb-1">
                   <div
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      activeKeys.has(key.note) ? 'bg-black' : 'bg-gray-500'
-                    }`}
+                    className={cn(`w-1.5 h-1.5 rounded-full
+                    ${key.isBlack ? 'bg-white' : 'bg-black'}s
+                    `)}
                   ></div>
                 </div>
                 <span

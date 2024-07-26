@@ -123,7 +123,7 @@ export const KnobControl = forwardRef<HTMLDivElement, KnobControlProps>(
           tabIndex={includeInTabOrder ? 0 : -1}
           onKeyDown={handleKeyDown}
           className={cn(
-            'w-[4.5rem] h-[4.5rem] cursor-grab touch-none relative',
+            'w-[4.5rem] h-[4.5rem] cursor-grab touch-none relative focus:outline-none',
             className,
           )}
           style={{ touchAction: 'none' }}

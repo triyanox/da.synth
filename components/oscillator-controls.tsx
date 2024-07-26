@@ -176,7 +176,7 @@ const OscillatorControls: React.FC<{
             min={-3}
             max={3}
             integerSteps
-            dragSensitivity={0.1}
+            dragSensitivity={0.05}
             value={oscillator.octave}
             onChange={(value) => updateOscillator({ octave: value })}
           />
